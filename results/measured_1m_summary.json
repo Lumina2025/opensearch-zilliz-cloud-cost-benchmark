@@ -1,0 +1,43 @@
+{
+  "dataset": "VDBBench Cohere / Wikipedia 1M",
+  "size": 1000000,
+  "dimension": 768,
+  "metric": "COSINE",
+  "opensearch": {
+    "deployment": "local Docker single-node",
+    "version": "opensearchproject/opensearch:3.6.0",
+    "cpu": 4,
+    "memory": "24g",
+    "heap": "12g",
+    "index": "Lucene HNSW",
+    "m": 16,
+    "ef_construction": 128,
+    "ef_search": 128,
+    "insert_duration_sec": 2589.4919,
+    "optimize_duration_sec": 451.2815,
+    "load_duration_sec": 3040.7734,
+    "recall": 0.9012,
+    "ndcg": 0.9115,
+    "concurrency_1_qps": 92.6795,
+    "concurrency_5_qps": 716.9112,
+    "serial_latency_p99_sec": 0.0069,
+    "serial_latency_p95_sec": 0.0061
+  },
+  "zilliz_cloud": {
+    "deployment": "Zilliz Cloud Dedicated",
+    "cluster": "Dedicated 1CU test cluster",
+    "cu_type": "Performance-optimized",
+    "cu_size": 1,
+    "region": "aws-us-west-2",
+    "index": "AutoIndex",
+    "level": 1,
+    "insert_duration_sec": 886.11,
+    "recall": 0.966,
+    "ndcg": 0.9697,
+    "concurrency_1_qps": 5.759,
+    "concurrency_5_qps": 28.7898,
+    "serial_latency_p99_sec": 0.1773,
+    "serial_latency_p95_sec": 0.1759,
+    "latency_note": "Query latency includes the remote network path to aws-us-west-2 and is not used as the main performance claim."
+  }
+}
