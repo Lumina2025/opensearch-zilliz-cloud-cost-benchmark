@@ -15,6 +15,7 @@ HNSW_UPPER_LAYER_FACTOR = 1.05
 METADATA_BYTES_PER_ROW = 100
 
 AWS_OPENSEARCH_GP3_GB_MONTH = 0.122
+AWS_OPENSEARCH_MIN_EBS_GIB_PER_NODE = 10
 ZILLIZ_STANDARD_MAX_CU = 32
 ZILLIZ_CAPACITY_CU_HOUR = {"Standard": 0.175, "Enterprise": 0.273}
 ZILLIZ_TIERED_CU_HOUR = 0.263
@@ -72,7 +73,10 @@ def opensearch_monthly(rows: int) -> dict[str, float | str | int]:
     inst, nodes = pick_opensearch(rows)
     compute = inst.hourly * nodes * HOURS_PER_MONTH
     ebs_gb = opensearch_index_disk_gb(rows)
-    ebs = ebs_gb * AWS_OPENSEARCH_GP3_GB_MONTH
+    # Each r7g data node requires at least a 10-GiB EBS volume. Apply its
+    # monthly cost floor to the article's simplified storage estimate.
+    min_ebs_cost = nodes * AWS_OPENSEARCH_MIN_EBS_GIB_PER_NODE * AWS_OPENSEARCH_GP3_GB_MONTH
+    ebs = max(ebs_gb * AWS_OPENSEARCH_GP3_GB_MONTH, min_ebs_cost)
     return {
         "instance": inst.name,
         "nodes": nodes,

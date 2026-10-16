@@ -21,6 +21,11 @@ OpenSearch and Zilliz Cloud for vector-search cost.
 - Index disk: `2 * (vector_GB + hnsw_graph_GB + metadata_GB)`
 - Metadata: 100 bytes per row
 - EBS: gp3 storage at $0.122/GB-month
+- Minimum EBS provision: 10 GiB per r7g data node; the model applies a storage cost floor of $1.22/node/month
+
+At 1M, the estimated index footprint is 1.87 GB, below the minimum EBS
+volume size. Storage therefore costs $1.22/month, and the monthly total is
+`$0.178 × 730 + $1.22 = $131.16`, rounded to `$131` in the table.
 
 The cost model uses the SQ8-friendly storage assumption, while the measured
 OpenSearch run used the default float vector storage.
@@ -48,3 +53,4 @@ giving a model total of `$25,530.82/month`, rounded to `$25,531` in the table.
 - VDBBench cost-aware blog: https://zilliz.com/blog/vdbbench-adds-cost-aware-benchmarking-for-vector-databases
 - Zilliz Cloud On-Demand blog: https://zilliz.com/blog/zilliz-cloud-on-demand
 - AWS OpenSearch Service price list JSON: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonES/current/us-west-2/index.json
+- AWS OpenSearch Service EBS volume limits: https://docs.aws.amazon.com/opensearch-service/latest/developerguide/limits.html
