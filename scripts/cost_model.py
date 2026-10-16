@@ -15,7 +15,8 @@ HNSW_UPPER_LAYER_FACTOR = 1.05
 METADATA_BYTES_PER_ROW = 100
 
 AWS_OPENSEARCH_GP3_GB_MONTH = 0.122
-ZILLIZ_DEDICATED_CU_HOUR = 0.175
+ZILLIZ_STANDARD_MAX_CU = 32
+ZILLIZ_CAPACITY_CU_HOUR = {"Standard": 0.175, "Enterprise": 0.273}
 ZILLIZ_TIERED_CU_HOUR = 0.263
 ZILLIZ_STORAGE_GB_MONTH = 0.025
 
@@ -113,11 +114,22 @@ def zilliz_storage_month(rows: int) -> float:
     return (vector_gb_sq8(rows) + metadata_gb(rows)) * ZILLIZ_STORAGE_GB_MONTH
 
 
-def zilliz_capacity_monthly(rows: int) -> dict[str, float | int]:
+def zilliz_capacity_monthly(rows: int) -> dict[str, float | int | str]:
     cu = zilliz_capacity_cu(rows)
-    compute = cu * ZILLIZ_DEDICATED_CU_HOUR * HOURS_PER_MONTH
+    # The article uses Standard where supported; its single 128-CU cluster
+    # exceeds the Standard plan's 32-CU limit and uses Enterprise pricing.
+    plan = "Standard" if cu <= ZILLIZ_STANDARD_MAX_CU else "Enterprise"
+    hourly = ZILLIZ_CAPACITY_CU_HOUR[plan]
+    compute = cu * hourly * HOURS_PER_MONTH
     storage = zilliz_storage_month(rows)
-    return {"cu": cu, "compute_month": compute, "storage_month": storage, "total_month": compute + storage}
+    return {
+        "cu": cu,
+        "plan": plan,
+        "cu_hourly": hourly,
+        "compute_month": compute,
+        "storage_month": storage,
+        "total_month": compute + storage,
+    }
 
 
 def zilliz_tiered_monthly(rows: int) -> dict[str, float | int]:
@@ -141,7 +153,7 @@ def main() -> None:
         scale = f"{rows//1_000_000}M" if rows < 1_000_000_000 else "1B"
         notes = (
             f"OpenSearch {os['nodes']} x {os['instance']}; "
-            f"Capacity {cap['cu']}CU; Tiered {tier['cu']}CU"
+            f"Capacity {cap['cu']}CU ({cap['plan']}); Tiered {tier['cu']}CU (Standard)"
         )
         print(
             f"| {scale} | {money(os['total_month'])} | {money(cap['total_month'])} | "

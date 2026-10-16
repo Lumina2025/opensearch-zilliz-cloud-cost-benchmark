@@ -16,6 +16,17 @@ It includes:
 python3 scripts/cost_model.py
 ```
 
+The Capacity estimates use Standard pricing for 1M, 10M, and 100M vectors,
+and Enterprise pricing for the 128-CU cluster at 1B. At 1B, the estimated
+monthly cost is **$25,509.12 compute + $21.70 modeled storage = $25,530.82**
+(approximately **$25,531**). See [assumptions and pricing sources](docs/assumptions.md).
+
+To regenerate the published cost table:
+
+```bash
+python3 scripts/cost_model.py > results/cost_table.md
+```
+
 ## Directory Layout
 
 ```text
